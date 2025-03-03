@@ -7,9 +7,23 @@ const BASE_URL = 'http://localhost:3000'
 
 
 export const useProductStore = create((set, get) => ({
+
+
   products: [],
   loading: false,
   error:null,
+
+
+  formData: {
+    name: "",
+    price: "",
+    image: "",
+
+  },
+  
+  setFormData: (formData) => set({formData}),
+  resetFormData: () => set({formData: {name: "", price: "", image: ""}}),
+
   fetchProducts: async () => {
     set({loading:true})
     try {
@@ -39,5 +53,24 @@ export const useProductStore = create((set, get) => ({
       set({ loading: false });
     }
   },
+
+
+  addProduct: async (e) => {
+    e.preventDefault();
+    set({loading: true});
+    try {
+      const {formData} = get();
+      await axios.post(`${BASE_URL}/api/products`, formData);
+      await get().fetchProducts();
+      get().resetFormData();
+      toast.success("Product added successfully");
+      document.getElementById('add_product_modal').close();
+    } catch (error) {
+      console.log("Error in addProduct function", error);
+      toast.error("Something went wrong");
+    } finally {
+      set({loading: false});
+    }
+  }
 }));
 
